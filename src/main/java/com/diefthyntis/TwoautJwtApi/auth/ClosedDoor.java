@@ -54,9 +54,9 @@ ces événements pour une analyse ultérieure.
  et enregistrée comme un bean dans le contexte Spring.
  */
 @Component
-public class Door implements AuthenticationEntryPoint {
+public class ClosedDoor implements AuthenticationEntryPoint {
 
-  private static final Logger logger = LoggerFactory.getLogger(Door.class);
+  private static final Logger logger = LoggerFactory.getLogger(ClosedDoor.class);
 
   /*
    Cette méthode est invoquée chaque fois qu'une exception d'authentification est levée. 

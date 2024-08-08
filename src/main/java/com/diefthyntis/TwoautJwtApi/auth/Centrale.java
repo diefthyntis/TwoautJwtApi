@@ -23,8 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 import com.diefthyntis.TwoautJwtApi.service.UserService;
+
+
 
 /*
  – @EnableWebSecurity allows Spring to find and automatically apply the class to the global Web Security.
@@ -69,14 +70,14 @@ public class Centrale {
 	 * l'authentification.
 	 */
 	@Autowired
-	UserService userDetailsService;
+	UserService userService;
 
 	/*
 	 * unauthorizedHandler : Injecte un composant qui gère les exceptions
 	 * d'authentification (comme les tentatives d'accès non autorisées).
 	 */
 	@Autowired
-	private Door unauthorizedHandler;
+	private ClosedDoor closedDoor;
 
 	/*
 	 * authenticationJwtTokenFilter : Crée un filtre de token JWT personnalisé
@@ -88,17 +89,17 @@ public class Centrale {
 		return new Watchdog();
 	}
 
-	/*
-	 * authenticationProvider : Crée un fournisseur d'authentification
-	 * (DaoAuthenticationProvider) qui utilise le userDetailsService pour charger
-	 * les détails de l'utilisateur et le passwordEncoder pour encoder et vérifier
-	 * les mots de passe.
-	 */
-	@Bean
-	public DaoAuthenticationProvider authenticationProvider() {
+    /*
+     * authenticationProvider : Crée un fournisseur d'authentification
+     * (DaoAuthenticationProvider) qui utilise le userDetailsService pour charger
+     * les détails de l'utilisateur et le passwordEncoder pour encoder et vérifier
+     * les mots de passe.
+     */
+    @Bean
+    DaoAuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-		authProvider.setUserDetailsService(userDetailsService);
+		authProvider.setUserDetailsService(userService);
 		authProvider.setPasswordEncoder(passwordEncoder());
 
 		return authProvider;
@@ -123,40 +124,40 @@ public class Centrale {
 		return new BCryptPasswordEncoder();
 	}
 
-	/*
-	 * csrf.disable() : Désactive la protection CSRF. Ceci est souvent fait pour les
-	 * API REST, car les tokens JWT sont utilisés pour sécuriser les requêtes.
-	 * 
-	 * exceptionHandling().authenticationEntryPoint(unauthorizedHandler) : Configure
-	 * un point d'entrée d'authentification personnalisé (unauthorizedHandler) pour
-	 * gérer les erreurs d'authentification, comme les tentatives d'accès non
-	 * autorisées.
-	 * 
-	 * sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) :
-	 * Configure la gestion des sessions pour ne pas créer de sessions côté serveur.
-	 * Cela convient aux API REST stateless où les tokens JWT sont utilisés pour
-	 * maintenir l'état de l'utilisateur.
-	 * 
-	 * authorizeHttpRequests(auth -> ...) :
-	 * 
-	 * Permet l'accès à toutes les requêtes correspondant aux chemins /api/auth/**
-	 * et /api/test/** sans authentification. Exige une authentification pour toutes
-	 * les autres requêtes (anyRequest().authenticated()).
-	 * 
-	 * authenticationProvider(authenticationProvider()) : Intègre le fournisseur
-	 * d'authentification personnalisé dans la configuration de Spring Security.
-	 * 
-	 * addFilterBefore(authenticationJwtTokenFilter(),
-	 * UsernamePasswordAuthenticationFilter.class) : Ajoute le filtre JWT
-	 * (AuthTokenFilter) avant le filtre d'authentification par nom d'utilisateur et
-	 * mot de passe standard (UsernamePasswordAuthenticationFilter). Cela permet au
-	 * filtre JWT de traiter les requêtes avant le traitement d'authentification
-	 * standard.
-	 */
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    /*
+     * csrf.disable() : Désactive la protection CSRF. Ceci est souvent fait pour les
+     * API REST, car les tokens JWT sont utilisés pour sécuriser les requêtes.
+     * 
+     * exceptionHandling().authenticationEntryPoint(unauthorizedHandler) : Configure
+     * un point d'entrée d'authentification personnalisé (unauthorizedHandler) pour
+     * gérer les erreurs d'authentification, comme les tentatives d'accès non
+     * autorisées.
+     * 
+     * sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) :
+     * Configure la gestion des sessions pour ne pas créer de sessions côté serveur.
+     * Cela convient aux API REST stateless où les tokens JWT sont utilisés pour
+     * maintenir l'état de l'utilisateur.
+     * 
+     * authorizeHttpRequests(auth -> ...) :
+     * 
+     * Permet l'accès à toutes les requêtes correspondant aux chemins /api/auth/**
+     * et /api/test/** sans authentification. Exige une authentification pour toutes
+     * les autres requêtes (anyRequest().authenticated()).
+     * 
+     * authenticationProvider(authenticationProvider()) : Intègre le fournisseur
+     * d'authentification personnalisé dans la configuration de Spring Security.
+     * 
+     * addFilterBefore(authenticationJwtTokenFilter(),
+     * UsernamePasswordAuthenticationFilter.class) : Ajoute le filtre JWT
+     * (AuthTokenFilter) avant le filtre d'authentification par nom d'utilisateur et
+     * mot de passe standard (UsernamePasswordAuthenticationFilter). Cela permet au
+     * filtre JWT de traiter les requêtes avant le traitement d'authentification
+     * standard.
+     */
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
-				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+				.exceptionHandling(exception -> exception.authenticationEntryPoint(closedDoor))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
 						.requestMatchers("/api/test/**").permitAll().anyRequest().authenticated());

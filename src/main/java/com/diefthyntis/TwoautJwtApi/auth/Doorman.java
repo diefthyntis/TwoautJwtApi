@@ -143,7 +143,7 @@ public class Doorman {
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody NewCredential signUpRequest) {
-    if (internautRepository.existsByUsername(signUpRequest.getUsername())) {
+    if (internautRepository.existsByName(signUpRequest.getUsername())) {
       return ResponseEntity.badRequest().body(new ReturnedResponse("Error: Username is already taken!"));
     }
 
@@ -161,26 +161,26 @@ public class Doorman {
 
     if (strRoles == null) {
       Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-          .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+          .orElseThrow(() -> new RuntimeException("Error 1: Role is not found."));
       roles.add(userRole);
     } else {
       strRoles.forEach(role -> {
         switch (role) {
         case "admin":
           Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+              .orElseThrow(() -> new RuntimeException("Error 2: Role is not found."));
           roles.add(adminRole);
 
           break;
         case "mod":
           Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+              .orElseThrow(() -> new RuntimeException("Error 3: Role is not found."));
           roles.add(modRole);
 
           break;
         default:
           Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+              .orElseThrow(() -> new RuntimeException("Error 4: Role is not found."));
           roles.add(userRole);
         }
       });

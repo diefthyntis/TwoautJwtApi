@@ -21,11 +21,14 @@ public class UserService implements UserDetailsService {
   @Autowired
   InternautRepository internautRepository;
 
+  
+  // le nom loadUserByUsername est imposé par Spring Security
+  //le nom findByName est libre pour le développeur
   @Override
   @Transactional
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Internaut internaut = internautRepository.findByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+  public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+    Internaut internaut = internautRepository.findByName(name)
+        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + name));
 
     return Internaut.build(internaut);
   }

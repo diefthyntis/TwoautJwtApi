@@ -20,6 +20,9 @@ As I have said before, we need UserDetailsService for getting UserDetails object
 You can look at UserDetailsService interface that has only one method:
  */
 
+
+
+
 public class User implements UserDetails {
   private static final long serialVersionUID = 1L;
 
@@ -50,7 +53,7 @@ public class User implements UserDetails {
 
     return new User(
     		internaut.getId(), 
-    		internaut.getUsername(), 
+    		internaut.getName(), 
     		internaut.getEmail(),
     		internaut.getPassword(), 
         authorities);
